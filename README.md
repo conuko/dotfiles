@@ -1,4 +1,4 @@
-# Conukos Personal Dotfiles
+# Conuko's Personal Dotfiles
 
 My personal and opinionated macOS dotfiles, adapted from the general structure and workflow ideas in [`necolas/dotfiles`](https://github.com/necolas/dotfiles) but scoped to the tools and settings actually used on my machine.
 
