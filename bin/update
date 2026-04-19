@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+
+install_brewfile_if_present() {
+  local brewfile="$1"
+
+  if [[ -f "$brewfile" ]]; then
+    brew bundle install --file="$brewfile"
+  fi
+}
+
+if git -C "$ROOT" remote get-url origin >/dev/null 2>&1; then
+  git -C "$ROOT" pull --ff-only
+else
+  echo "No origin remote configured; skipping git pull."
+fi
+
+if command -v brew >/dev/null 2>&1; then
+  install_brewfile_if_present "$ROOT/Brewfile"
+  install_brewfile_if_present "$ROOT/Brewfile.local"
+fi
+
+"$ROOT/bin/link"
+
+echo "Update complete."

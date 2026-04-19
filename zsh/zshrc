@@ -1,0 +1,14 @@
+# Enable Powerlevel10k instant prompt. Keep this near the top of ~/.zshrc.
+if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
+  source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
+fi
+
+export DOTFILES_DIR="${DOTFILES_DIR:-$HOME/dotfiles}"
+
+source "$DOTFILES_DIR/zsh/exports.zsh"
+source "$DOTFILES_DIR/zsh/path.zsh"
+source "$DOTFILES_DIR/zsh/plugins.zsh"
+source "$DOTFILES_DIR/zsh/aliases.zsh"
+
+[[ -f "$HOME/.p10k.zsh" ]] && source "$HOME/.p10k.zsh"
+[[ -f "$HOME/.zshrc.local" ]] && source "$HOME/.zshrc.local"

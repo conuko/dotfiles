@@ -1,0 +1,8 @@
+# Machine-local zsh overrides.
+# This file is sourced from ~/.zshrc if present.
+
+# Example aliases:
+# alias dotfiles="cd ~/dotfiles"
+
+# Example local exports:
+# export HOMEBREW_NO_ANALYTICS=1

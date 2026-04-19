@@ -1,0 +1,96 @@
+[include]
+    path = ~/.gitconfig.local
+
+[alias]
+    co = checkout
+    st = status
+    hist = log --pretty=format:\"%h %ad | %s%d [%an]\" --graph --date=short
+    l = log --pretty=oneline -n 20 --graph --abbrev-commit
+    s = status -s
+    d = !"git diff-index --quiet HEAD -- || clear; git --no-pager diff --patch-with-stat"
+    di = !"d() { git diff --patch-with-stat HEAD~$1; }; git diff-index --quiet HEAD -- || clear; d"
+    p = pull --recurse-submodules
+    c = clone --recursive
+    ca = !git add -A && git commit -av
+    go = "!f() { git checkout -b \"$1\" 2> /dev/null || git checkout \"$1\"; }; f"
+    tags = tag -l
+    branches = branch --all
+    remotes = remote --verbose
+    aliases = config --get-regexp alias
+    amend = commit --amend --reuse-message=HEAD
+    credit = "!f() { git commit --amend --author \"$1 <$2>\" -C HEAD; }; f"
+    reb = "!r() { git rebase -i HEAD~$1; }; r"
+    retag = "!r() { git tag -d $1 && git push origin :refs/tags/$1 && git tag $1; }; r"
+    fb = "!f() { git branch -a --contains $1; }; f"
+    ft = "!f() { git describe --always --contains $1; }; f"
+    fc = "!f() { git log --pretty=format:'%C(yellow)%h  %Cblue%ad  %Creset%s%Cgreen  [%cn] %Cred%d' --decorate --date=short -S$1; }; f"
+    fm = "!f() { git log --pretty=format:'%C(yellow)%h  %Cblue%ad  %Creset%s%Cgreen  [%cn] %Cred%d' --decorate --date=short --grep=$1; }; f"
+    dm = "!git branch --merged | grep -v '\\*' | xargs -n 1 git branch -d"
+    contributors = shortlog --summary --numbered
+    whoami = "!git config user.email && git config user.name && git config user.signingkey"
+    latest-tag = "!git rev-list --tags --max-count=1 | git describe"
+    lt = "!git rev-list --tags --max-count=1 | git describe"
+
+[color]
+    branch = auto
+    diff = auto
+    status = auto
+    ui = true
+
+[color "branch"]
+    current = yellow reverse
+    local = yellow
+    remote = green
+
+[color "diff"]
+    meta = yellow bold
+    frag = magenta bold
+    old = red
+    new = cyan
+
+[color "status"]
+    added = green
+    changed = yellow
+    untracked = cyan
+
+[branch]
+    sort = -committerdate
+
+[core]
+    excludesfile = ~/.gitignore
+    whitespace = space-before-tab,-indent-with-non-tab,trailing-space
+    trustctime = false
+    precomposeunicode = false
+    untrackedCache = true
+    pager = diff-so-fancy | less --tabs=4 -RFX
+
+[commit]
+    gpgsign = true
+
+[diff]
+    renames = copies
+
+[diff "bin"]
+    textconv = hexdump -v -C
+
+[apply]
+    whitespace = fix
+
+[merge]
+    log = true
+
+[push]
+    default = simple
+    followTags = true
+
+[mergetool]
+    keepBackup = false
+
+[difftool]
+    prompt = false
+
+[help]
+    autocorrect = 1
+
+[init]
+    defaultBranch = main

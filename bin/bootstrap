@@ -1,0 +1,67 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+RUN_MACOS=0
+
+for arg in "$@"; do
+  case "$arg" in
+    --macos)
+      RUN_MACOS=1
+      ;;
+    *)
+      echo "Unknown option: $arg" >&2
+      echo "Usage: $0 [--macos]" >&2
+      exit 1
+      ;;
+  esac
+done
+
+ensure_homebrew() {
+  if command -v brew >/dev/null 2>&1; then
+    return 0
+  fi
+
+  echo "Installing Homebrew..."
+  NONINTERACTIVE=1 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+}
+
+copy_if_missing() {
+  local source="$1"
+  local target="$2"
+
+  if [[ -e "$target" ]]; then
+    echo "Unchanged: $target"
+    return 0
+  fi
+
+  cp "$source" "$target"
+  echo "Created: $target"
+}
+
+install_brewfile_if_present() {
+  local brewfile="$1"
+
+  if [[ -f "$brewfile" ]]; then
+    brew bundle install --file="$brewfile"
+  fi
+}
+
+ensure_homebrew
+
+if command -v brew >/dev/null 2>&1; then
+  install_brewfile_if_present "$ROOT/Brewfile"
+  install_brewfile_if_present "$ROOT/Brewfile.local"
+fi
+
+copy_if_missing "$ROOT/local/gitconfig.local.example" "$HOME/.gitconfig.local"
+copy_if_missing "$ROOT/local/zshrc.local.example" "$HOME/.zshrc.local"
+
+"$ROOT/bin/link"
+
+if [[ $RUN_MACOS -eq 1 ]]; then
+  "$ROOT/bin/macos"
+fi
+
+echo "Bootstrap complete."
