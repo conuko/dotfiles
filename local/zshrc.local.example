@@ -6,3 +6,6 @@
 
 # Example local exports:
 # export HOMEBREW_NO_ANALYTICS=1
+
+# Add optional dotfiles scripts to PATH:
+# export PATH="$DOTFILES_DIR/bin/optional:$PATH"

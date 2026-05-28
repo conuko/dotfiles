@@ -22,6 +22,7 @@ My personal and opinionated macOS dotfiles, adapted from the general structure a
 dotfiles/
 ├── Brewfile
 ├── bin/
+│   └── optional/
 ├── git/
 ├── local/
 ├── macos/
@@ -60,6 +61,36 @@ If the repository has an `origin` remote, this pulls with `--ff-only` before ref
 ```bash
 ~/dotfiles/bin/update
 ```
+
+## Optional scripts
+
+Scripts in `bin/optional/` are **not** on `PATH` by default. To opt in, add this to `~/.zshrc.local`:
+
+```bash
+export PATH="$DOTFILES_DIR/bin/optional:$PATH"
+```
+
+Or symlink individual scripts into `~/.local/bin/` (already on `PATH`):
+
+```bash
+ln -s ~/dotfiles/bin/optional/fetch-gitlab-mr-review-comments ~/.local/bin/
+```
+
+### fetch-gitlab-mr-review-comments
+
+Writes unresolved review threads from a GitLab merge request into a Markdown file in the directory where the command is run. The output is grouped by file and includes exact `path:line` links.
+
+```bash
+fetch-gitlab-mr-review-comments https://gitlab.example.com/group/project/-/merge_requests/42
+```
+
+By default, the file is named like `gitlab-mr-review-comments-group-project-mr-42.md`. Use `-o` to choose a custom output path.
+
+```bash
+fetch-gitlab-mr-review-comments https://gitlab.example.com/group/project/-/merge_requests/42 -o review-comments.md
+```
+
+Requires `glab` on `PATH` with access to the GitLab project.
 
 ## Managed home files
 
