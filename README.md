@@ -40,7 +40,7 @@ The scripts are not on `PATH`; call them by path.
 
 ### Bootstrap a machine
 
-Installs Homebrew and the tracked packages, links managed dotfiles, creates missing local files, installs mise from [mise.run](https://mise.run) along with its runtimes, and optionally applies macOS defaults.
+Installs Homebrew and the tracked packages, links managed dotfiles, creates missing local files, installs mise from [mise.run](https://mise.run) along with its runtimes, and optionally applies macOS defaults. On a fresh Mac, install Apple's command-line tools first (`xcode-select --install`) so `git` is available to clone this repo; the Homebrew installer then asks once for your password and for Enter to continue.
 
 ```bash
 ~/dotfiles/bin/bootstrap
