@@ -50,6 +50,16 @@ copy_if_missing() {
   echo "Created: $target"
 }
 
+# The official binary is smaller and faster than Homebrew's build and can update itself.
+ensure_mise() {
+  if [[ -x "$HOME/.local/bin/mise" ]]; then
+    return 0
+  fi
+
+  echo "Installing mise..."
+  curl -fsSL https://mise.run | MISE_INSTALL_HELP=0 sh
+}
+
 install_brewfile_if_present() {
   local brewfile="$1"
 
@@ -93,9 +103,8 @@ copy_if_missing "$ROOT/local/gitconfig.example" "$HOME/.gitconfig"
 copy_if_missing "$ROOT/local/zshrc.local.example" "$HOME/.zshrc.local"
 ensure_allowed_signers
 
-if command -v mise >/dev/null 2>&1; then
-  mise install
-fi
+ensure_mise
+"$HOME/.local/bin/mise" install
 
 if [[ $RUN_MACOS -eq 1 ]]; then
   "$ROOT/bin/macos"

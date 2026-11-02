@@ -40,7 +40,7 @@ The scripts are not on `PATH`; call them by path.
 
 ### Bootstrap a machine
 
-Installs Homebrew and the tracked packages, links managed dotfiles, creates missing local files, installs mise runtimes, and optionally applies macOS defaults.
+Installs Homebrew and the tracked packages, links managed dotfiles, creates missing local files, installs mise from [mise.run](https://mise.run) along with its runtimes, and optionally applies macOS defaults.
 
 ```bash
 ~/dotfiles/bin/bootstrap
@@ -63,7 +63,7 @@ Safely backs up conflicting existing files in `~/.dotfiles-backups/<timestamp>/`
 
 ### Update everything
 
-Pulls the repo (`--ff-only`), upgrades Homebrew packages and mise runtimes, upgrades `gh` extensions, relinks, and lists installed packages that no Brewfile mentions.
+Pulls the repo (`--ff-only`), upgrades Homebrew packages, mise itself (`mise self-update`) and its runtimes, upgrades `gh` extensions, relinks, and lists installed packages that no Brewfile mentions.
 
 ```bash
 ~/dotfiles/bin/update
@@ -99,6 +99,39 @@ Commits and tags are signed with SSH (`gpg.format = ssh`). On a new machine:
 1. Set `user.name`, `user.email` and `user.signingkey = ~/.ssh/id_ed25519.pub` in `~/.gitconfig`.
 2. Run `~/dotfiles/bin/bootstrap` (or create `~/.config/git/allowed_signers` yourself).
 3. Add the public key as a **signing** key on GitHub (`gh ssh-key add ~/.ssh/id_ed25519.pub --type signing`) and on GitLab (key usage "Authentication & Signing").
+
+## Shell shortcuts
+
+### Keys
+
+| Keys | What it does |
+| --- | --- |
+| `Ctrl-R` | Fuzzy-search your command history (fzf) |
+| `Ctrl-T` | Fuzzy-find a file below the current directory and insert its path, with a `bat` preview |
+| `Alt-C` | Fuzzy-find a directory below the current one and `cd` into it |
+| `**` then `Tab` | Fuzzy completion: `vim **<Tab>` for files, `cd src/**<Tab>` for directories, `kill **<Tab>` for processes, `ssh **<Tab>` for hosts |
+| `Tab` | Completion menu with case-insensitive matching; move through it with the arrow keys |
+| `↑` / `↓` | Step through earlier commands that start with what you have typed |
+| `→` or `End` | Accept the grey autosuggestion; `Option-→` accepts one word of it |
+| `Option-←` / `Option-→` | Move one word left or right (`Ctrl-←` / `Ctrl-→` work too) |
+| `Ctrl-X Ctrl-E` | Edit the current command in Neovim |
+
+`Alt` is the left `Option` key in Ghostty (`macos-option-as-alt = left`). In iTerm, set the left Option key to "Esc+" under Profiles → Keys.
+
+### Commands
+
+| Command | What it does |
+| --- | --- |
+| `z <part of a path>` | Jump to the most-used directory that matches (zoxide) |
+| `zi <part of a path>` | Pick from the matching directories with fzf |
+| `<directory>` | Typing a directory name on its own `cd`s into it |
+| `cd -<Tab>` | Pick from recently visited directories |
+| `ls`, `ll`, `la`, `lt` | eza: list, long list with git status, long list including hidden files, tree two levels deep |
+| `cat <file>` | `bat` with syntax highlighting. Use `\cat` for the original: `bat` rejects flags such as `cat -v` |
+| `man <command>` | Man pages are colored by `bat` |
+| `vim` | Neovim |
+| `dotfiles` | `cd` into this repo |
+| `git diff`, `git show`, `git add -p` | Output goes through delta; `n` and `N` jump between files |
 
 ## Runtimes with mise
 
@@ -145,7 +178,7 @@ Requires `glab` on `PATH` with access to the GitLab project.
 
 ## Brewfile scope
 
-The tracked `Brewfile` contains the core daily tools, grouped by purpose: Git (`git`, `git-lfs`, `git-delta`, `gh`, `glab`, `lazygit`), shell (`starship`, zsh plugins, `fzf`, `zoxide`, `eza`, `bat`, `fd`, `ripgrep`, `jq`), development (`mise`, `uv`, `neovim`, `shellcheck`), media and web (`ffmpeg`, `svgo`, `mkcert`), and the Ghostty cask. Language runtimes come from mise, not Homebrew.
+The tracked `Brewfile` contains the core daily tools, grouped by purpose: Git (`git`, `git-lfs`, `git-delta`, `gh`, `glab`, `lazygit`), shell (`starship`, zsh plugins, `fzf`, `zoxide`, `eza`, `bat`, `fd`, `ripgrep`, `jq`), development (`uv`, `neovim`, `shellcheck`), media and web (`ffmpeg`, `svgo`, `mkcert`), and the Ghostty cask. Language runtimes come from mise, not Homebrew. mise itself is installed from [mise.run](https://mise.run) into `~/.local/bin`, because the official binary is smaller and faster than Homebrew's build and can update itself.
 
 Put extra machine-local packages in the untracked `Brewfile.local`; `bin/bootstrap` and `bin/update` load it when it exists.
 

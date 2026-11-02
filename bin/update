@@ -27,8 +27,9 @@ fi
 
 "$ROOT/bin/link"
 
-if command -v mise >/dev/null 2>&1; then
-  mise upgrade
+if [[ -x "$HOME/.local/bin/mise" ]]; then
+  "$HOME/.local/bin/mise" self-update --yes
+  "$HOME/.local/bin/mise" upgrade
 fi
 
 if command -v gh >/dev/null 2>&1; then

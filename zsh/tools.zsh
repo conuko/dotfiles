@@ -1,13 +1,18 @@
 # Every `eval "$(tool init)"` forks a process, which adds up to ~100 ms per shell.
-# Cache each generated script, keyed by the tool's resolved binary path, so an
-# upgrade (new Cellar path) regenerates it automatically.
+# Cache each generated script, keyed by the tool's resolved binary path and its
+# modification time, so an upgrade (`brew upgrade`, `mise self-update`) regenerates it.
+zmodload -F zsh/stat b:zstat
+
 _cached_init() {
   local name="$1" bin="${commands[$2]}"
   shift 2
   [[ -n "$bin" ]] || return 1
 
+  local -a mtime
+  zstat -A mtime +mtime -- "${bin:A}" || return 1
+
   local dir="${XDG_CACHE_HOME:-$HOME/.cache}/zsh/init"
-  local cache="$dir/$name-${${bin:A}//\//_}.zsh"
+  local cache="$dir/$name-${${bin:A}//\//_}-${mtime[1]}.zsh"
 
   if [[ ! -s "$cache" ]]; then
     [[ -d "$dir" ]] || mkdir -p "$dir"

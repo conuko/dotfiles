@@ -19,8 +19,8 @@ brew "fd"
 brew "ripgrep"
 brew "jq"
 
-# Development (language runtimes are managed by mise, see mise/config.toml)
-brew "mise"
+# Development (language runtimes are managed by mise, see mise/config.toml;
+# mise itself comes from https://mise.run, installed by bin/bootstrap)
 brew "uv"
 brew "neovim"
 brew "shellcheck"
