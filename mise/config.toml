@@ -1,0 +1,15 @@
+# Global runtimes, linked to ~/.config/mise/config.toml.
+# Projects override these with mise.toml, .nvmrc, .node-version, .python-version or .ruby-version.
+
+[tools]
+node = "lts"
+pnpm = "latest"
+bun = "latest"
+python = "3.14"
+go = "latest"
+"npm:yarn" = "1"
+"pipx:poetry" = "latest"
+
+[settings]
+# Read version files from other version managers (off by default since mise 2025.10).
+idiomatic_version_file_enable_tools = ["node", "python", "ruby"]

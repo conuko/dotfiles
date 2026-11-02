@@ -19,10 +19,29 @@ else
 fi
 
 if command -v brew >/dev/null 2>&1; then
+  brew update
+  brew upgrade
   install_brewfile_if_present "$ROOT/Brewfile"
   install_brewfile_if_present "$ROOT/Brewfile.local"
 fi
 
 "$ROOT/bin/link"
+
+if command -v mise >/dev/null 2>&1; then
+  mise upgrade
+fi
+
+if command -v gh >/dev/null 2>&1; then
+  gh extension upgrade --all || true
+fi
+
+if command -v brew >/dev/null 2>&1; then
+  brew cleanup
+
+  echo "Installed but not listed in a Brewfile (add them or uninstall them):"
+  cat "$ROOT/Brewfile" "$ROOT"/Brewfile.local 2>/dev/null |
+    brew bundle cleanup --file=- 2>/dev/null |
+    awk '/^Would remove|^Run `brew/ { exit } { print }' || true
+fi
 
 echo "Update complete."

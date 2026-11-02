@@ -2,10 +2,10 @@
 # This file is sourced from ~/.zshrc if present.
 
 # Example aliases:
-# alias dotfiles="cd ~/dotfiles"
+# alias work="cd ~/Projects"
 
 # Example local exports:
-# export HOMEBREW_NO_ANALYTICS=1
+# export AWS_PROFILE=default
 
 # Add optional dotfiles scripts to PATH:
 # export PATH="$DOTFILES_DIR/bin/optional:$PATH"

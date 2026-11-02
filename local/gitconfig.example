@@ -1,0 +1,8 @@
+# Machine-local git settings: ~/.gitconfig (untracked).
+# Git reads this after ~/.config/git/config, so values here win,
+# and `git config --global` writes here instead of into the dotfiles repo.
+
+[user]
+    name = Your Name
+    email = you@example.com
+    signingkey = ~/.ssh/id_ed25519.pub

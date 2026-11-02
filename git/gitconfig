@@ -1,8 +1,10 @@
-[include]
-    path = ~/.gitconfig.local
+# Shared defaults, linked to ~/.config/git/config.
+# Identity, signing key and machine-specific settings live in the untracked
+# ~/.gitconfig, which git reads after this file and `git config --global` writes to.
 
 [alias]
     co = checkout
+    sw = switch
     st = status
     hist = log --pretty=format:\"%h %ad | %s%d [%an]\" --graph --date=short
     l = log --pretty=oneline -n 20 --graph --abbrev-commit
@@ -12,7 +14,7 @@
     p = pull --recurse-submodules
     c = clone --recursive
     ca = !git add -A && git commit -av
-    go = "!f() { git checkout -b \"$1\" 2> /dev/null || git checkout \"$1\"; }; f"
+    go = "!f() { git switch -c \"$1\" 2> /dev/null || git switch \"$1\"; }; f"
     tags = tag -l
     branches = branch --all
     remotes = remote --verbose
@@ -29,59 +31,77 @@
     contributors = shortlog --summary --numbered
     whoami = "!git config user.email && git config user.name && git config user.signingkey"
     latest-tag = "!git rev-list --tags --max-count=1 | git describe"
-    lt = "!git rev-list --tags --max-count=1 | git describe"
 
-[color]
-    branch = auto
-    diff = auto
-    status = auto
-    ui = true
+[core]
+    whitespace = space-before-tab,-indent-with-non-tab,trailing-space
+    trustctime = false
+    untrackedCache = true
+    fsmonitor = true
+    pager = delta
 
-[color "branch"]
-    current = yellow reverse
-    local = yellow
-    remote = green
+[interactive]
+    diffFilter = delta --color-only
 
-[color "diff"]
-    meta = yellow bold
-    frag = magenta bold
-    old = red
-    new = cyan
+[delta]
+    navigate = true
 
-[color "status"]
-    added = green
-    changed = yellow
-    untracked = cyan
+[column]
+    ui = auto
 
 [branch]
     sort = -committerdate
 
-[core]
-    excludesfile = ~/.gitignore
-    whitespace = space-before-tab,-indent-with-non-tab,trailing-space
-    trustctime = false
-    precomposeunicode = false
-    untrackedCache = true
-    pager = diff-so-fancy | less --tabs=4 -RFX
+[tag]
+    sort = version:refname
+    gpgSign = true
+
+[init]
+    defaultBranch = main
 
 [commit]
-    gpgsign = true
+    gpgSign = true
+    verbose = true
+
+[gpg]
+    format = ssh
+
+[gpg "ssh"]
+    allowedSignersFile = ~/.config/git/allowed_signers
 
 [diff]
+    algorithm = histogram
+    colorMoved = plain
+    mnemonicPrefix = true
     renames = copies
 
-[diff "bin"]
-    textconv = hexdump -v -C
+[merge]
+    conflictStyle = zdiff3
+    log = true
+
+[rerere]
+    enabled = true
+    autoUpdate = true
 
 [apply]
     whitespace = fix
 
-[merge]
-    log = true
+[fetch]
+    prune = true
+    pruneTags = true
+    all = true
+
+[pull]
+    rebase = true
 
 [push]
     default = simple
+    autoSetupRemote = true
     followTags = true
+
+[rebase]
+    autoSquash = true
+    autoStash = true
+    updateRefs = true
 
 [mergetool]
     keepBackup = false
@@ -90,7 +110,4 @@
     prompt = false
 
 [help]
-    autocorrect = 1
-
-[init]
-    defaultBranch = main
+    autocorrect = prompt

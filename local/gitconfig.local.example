@@ -1,7 +1,0 @@
-[user]
-    name = Your Name
-    email = you@example.com
-    signingkey = YOUR_SIGNING_KEY_ID
-
-[commit]
-    gpgsign = true

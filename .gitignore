@@ -3,3 +3,4 @@
 *.swo
 *~
 Brewfile.local
+__pycache__/

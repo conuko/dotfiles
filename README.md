@@ -4,9 +4,11 @@ My personal and opinionated macOS dotfiles, adapted from the general structure a
 
 ## What's managed
 
-- `zsh` configuration with `oh-my-zsh`, `powerlevel10k`, `nvm`, `pyenv`, `rbenv`, `pnpm`, `pipx`, and GitHub Copilot shell aliases
-- Git config and global gitignore
-- Homebrew package bootstrap via `Brewfile`
+- `zsh` configuration without a framework: Homebrew plugins (autosuggestions, syntax highlighting, completions), a [Starship](https://starship.rs) prompt, [fzf](https://github.com/junegunn/fzf), [zoxide](https://github.com/ajeetdsouza/zoxide), and `eza`/`bat`/`fd` aliases
+- Language runtimes with [mise](https://mise.jdx.dev) (Node, pnpm, Bun, Python, Go, Yarn, Poetry), including automatic switching from `.nvmrc`, `.node-version`, `.python-version` and `.ruby-version`
+- Git config with current defaults, [delta](https://github.com/dandavison/delta) for diffs, and SSH commit signing
+- [Ghostty](https://ghostty.org) terminal config
+- Homebrew packages via `Brewfile`
 - Safe macOS defaults
 
 ## What's not managed
@@ -21,19 +23,24 @@ My personal and opinionated macOS dotfiles, adapted from the general structure a
 ```text
 dotfiles/
 ├── Brewfile
-├── bin/
-│   └── optional/
-├── git/
-├── local/
+├── bin/          bootstrap, link, update, macos
+│   └── optional/ opt-in helper scripts
+├── ghostty/      → ~/.config/ghostty/config.ghostty
+├── git/          → ~/.config/git/config, ~/.config/git/ignore
+├── local/        templates for untracked machine-local files
 ├── macos/
-└── zsh/
+├── mise/         → ~/.config/mise/config.toml
+├── starship/     → ~/.config/starship.toml
+└── zsh/          → ~/.zshrc, ~/.zprofile
 ```
 
 ## Commands
 
+The scripts are not on `PATH`; call them by path.
+
 ### Bootstrap a machine
 
-Runs Homebrew setup, installs the tracked packages, creates missing local override files, links managed dotfiles, and optionally applies macOS defaults.
+Installs Homebrew and the tracked packages, links managed dotfiles, creates missing local files, installs mise runtimes, and optionally applies macOS defaults.
 
 ```bash
 ~/dotfiles/bin/bootstrap
@@ -42,7 +49,7 @@ Runs Homebrew setup, installs the tracked packages, creates missing local overri
 
 ### Relink managed dotfiles
 
-Safely backs up conflicting existing files in `~/.dotfiles-backups/<timestamp>/`.
+Safely backs up conflicting existing files in `~/.dotfiles-backups/<timestamp>/`, keeping their path relative to `~`. Running it again changes nothing.
 
 ```bash
 ~/dotfiles/bin/link
@@ -54,13 +61,57 @@ Safely backs up conflicting existing files in `~/.dotfiles-backups/<timestamp>/`
 ~/dotfiles/bin/macos
 ```
 
-### Update the repo and re-apply config
+### Update everything
 
-If the repository has an `origin` remote, this pulls with `--ff-only` before refreshing packages and links.
+Pulls the repo (`--ff-only`), upgrades Homebrew packages and mise runtimes, upgrades `gh` extensions, relinks, and lists installed packages that no Brewfile mentions.
 
 ```bash
 ~/dotfiles/bin/update
 ```
+
+## Managed home files
+
+| Home file | Repo file |
+| --- | --- |
+| `~/.zshrc` | `zsh/zshrc` |
+| `~/.zprofile` | `zsh/zprofile` |
+| `~/.config/git/config` | `git/gitconfig` |
+| `~/.config/git/ignore` | `git/gitignore` |
+| `~/.config/mise/config.toml` | `mise/config.toml` |
+| `~/.config/starship.toml` | `starship/starship.toml` |
+| `~/.config/ghostty/config.ghostty` | `ghostty/config.ghostty` |
+
+## Local overrides
+
+These files are intentionally outside the repo and are safe for machine-specific or private values:
+
+- `~/.gitconfig`: identity, signing key, and anything `git config --global` writes. Git reads it after `~/.config/git/config`, so its values win.
+- `~/.zshrc.local`: sourced at the end of `~/.zshrc`
+- `~/.config/git/allowed_signers`: lets git verify your own SSH signatures
+- `~/dotfiles/Brewfile.local`: extra packages for this machine (git-ignored)
+
+Bootstrap creates the first two from `local/gitconfig.example` and `local/zshrc.local.example` when missing, and generates `allowed_signers` from `user.email` and `~/.ssh/id_ed25519.pub`.
+
+## Commit signing
+
+Commits and tags are signed with SSH (`gpg.format = ssh`). On a new machine:
+
+1. Set `user.name`, `user.email` and `user.signingkey = ~/.ssh/id_ed25519.pub` in `~/.gitconfig`.
+2. Run `~/dotfiles/bin/bootstrap` (or create `~/.config/git/allowed_signers` yourself).
+3. Add the public key as a **signing** key on GitHub (`gh ssh-key add ~/.ssh/id_ed25519.pub --type signing`) and on GitLab (key usage "Authentication & Signing").
+
+## Runtimes with mise
+
+Global versions live in `mise/config.toml`. In a project, mise reads `mise.toml` or the version files of other managers (`.nvmrc` and friends) and switches versions when you `cd` into it, so there is no `nvm use` step.
+
+```bash
+mise install          # install everything the current directory needs
+mise use node@22      # pin a version for the current project (writes mise.toml)
+mise ls               # show installed and active versions
+mise doctor           # check the setup
+```
+
+Interactive shells use `mise activate`. Login shells started by GUI apps and editors get the mise shims through `~/.zprofile`.
 
 ## Optional scripts
 
@@ -92,47 +143,12 @@ fetch-gitlab-mr-review-comments https://gitlab.example.com/group/project/-/merge
 
 Requires `glab` on `PATH` with access to the GitLab project.
 
-## Managed home files
-
-- `~/.zshrc` -> `~/dotfiles/zsh/zshrc`
-- `~/.gitconfig` -> `~/dotfiles/git/gitconfig`
-- `~/.gitignore` -> `~/dotfiles/git/gitignore`
-
-## Local overrides
-
-These files are intentionally outside the repo and are safe for machine-specific or private values:
-
-- `~/.gitconfig.local`
-- `~/.zshrc.local`
-
-Bootstrap creates them from these templates when missing:
-
-- `~/dotfiles/local/gitconfig.local.example`
-- `~/dotfiles/local/zshrc.local.example`
-
 ## Brewfile scope
 
-The tracked `Brewfile` contains the core daily tools for my machine:
+The tracked `Brewfile` contains the core daily tools, grouped by purpose: Git (`git`, `git-lfs`, `git-delta`, `gh`, `glab`, `lazygit`), shell (`starship`, zsh plugins, `fzf`, `zoxide`, `eza`, `bat`, `fd`, `ripgrep`, `jq`), development (`mise`, `uv`, `neovim`, `shellcheck`), media and web (`ffmpeg`, `svgo`, `mkcert`), and the Ghostty cask. Language runtimes come from mise, not Homebrew.
 
-- `git`
-- `gh`
-- `gnupg`
-- `diff-so-fancy`
-- `neovim`
-- `ripgrep`
-- `jq`
-- `lazygit`
-- `node`
-- `pnpm`
-- `bun`
-- `pyenv`
-- `rbenv`
-- `pipx`
-- `go`
-- `ffmpeg`
-- `svgo`
-- `mkcert`
+Put extra machine-local packages in the untracked `Brewfile.local`; `bin/bootstrap` and `bin/update` load it when it exists.
 
-If you want extra machine-local packages later, add them to a non-tracked `Brewfile.local` and keep the tracked file curated.
+## CI
 
-`bin/bootstrap` and `bin/update` also load `~/dotfiles/Brewfile.local` when it exists.
+`.github/workflows/lint.yml` runs ShellCheck on the scripts and syntax-checks the zsh and Python files on every push.

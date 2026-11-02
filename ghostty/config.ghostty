@@ -1,0 +1,8 @@
+# Linked to ~/.config/ghostty/config.ghostty by bin/link.
+
+theme = dark:Apple System Colors, light:Apple System Colors Light
+font-family = JetBrains Mono
+font-size = 14
+
+# Use the left Option key as Alt, so shell shortcuts such as Alt-C (fzf) work.
+macos-option-as-alt = left

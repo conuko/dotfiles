@@ -1,0 +1,9 @@
+# Login shells, including non-interactive ones started by GUI apps and editors.
+# Interactive shells also read ~/.zshrc, which activates mise fully.
+export DOTFILES_DIR="${DOTFILES_DIR:-$HOME/dotfiles}"
+
+source "$DOTFILES_DIR/zsh/exports.zsh"
+source "$DOTFILES_DIR/zsh/path.zsh"
+
+# Shims make mise-managed tools resolvable without the interactive prompt hook.
+path=("${MISE_DATA_DIR:-${XDG_DATA_HOME:-$HOME/.local/share}/mise}/shims" $path)

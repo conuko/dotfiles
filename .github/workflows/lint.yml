@@ -1,0 +1,26 @@
+name: Lint
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Install zsh
+        run: sudo apt-get update && sudo apt-get install -y zsh
+
+      - name: ShellCheck
+        run: shellcheck bin/bootstrap bin/link bin/macos bin/update macos/defaults.sh
+
+      - name: zsh syntax
+        run: for f in zsh/zshrc zsh/zprofile zsh/*.zsh; do zsh -n "$f"; done
+
+      - name: Python syntax
+        run: python3 -m py_compile bin/optional/fetch-gitlab-mr-review-comments
