@@ -1,20 +1,33 @@
-tap "oven-sh/bun"
-
+# Git
 brew "git"
+brew "git-lfs"
+brew "git-delta"
 brew "gh"
-brew "gnupg"
-brew "diff-so-fancy"
-brew "neovim"
+brew "glab"
+brew "lazygit"
+
+# Shell
+brew "starship"
+brew "zsh-autosuggestions"
+brew "zsh-syntax-highlighting"
+brew "zsh-completions"
+brew "fzf"
+brew "zoxide"
+brew "eza"
+brew "bat"
+brew "fd"
 brew "ripgrep"
 brew "jq"
-brew "lazygit"
-brew "node"
-brew "pnpm"
-brew "oven-sh/bun/bun"
-brew "pyenv"
-brew "rbenv"
-brew "pipx"
-brew "go"
+
+# Development (language runtimes are managed by mise, see mise/config.toml;
+# mise itself comes from https://mise.run, installed by bin/bootstrap)
+brew "uv"
+brew "neovim"
+brew "shellcheck"
+
+# Media and web
 brew "ffmpeg"
 brew "svgo"
 brew "mkcert"
+
+cask "ghostty"

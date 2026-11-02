@@ -3,6 +3,7 @@
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+CONFIG_HOME="${XDG_CONFIG_HOME:-$HOME/.config}"
 RUN_MACOS=0
 
 for arg in "$@"; do
@@ -25,6 +26,15 @@ ensure_homebrew() {
 
   echo "Installing Homebrew..."
   NONINTERACTIVE=1 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+
+  # A fresh install is not on PATH yet in this process.
+  local brew_bin
+  for brew_bin in /opt/homebrew/bin/brew /usr/local/bin/brew; do
+    if [[ -x "$brew_bin" ]]; then
+      eval "$("$brew_bin" shellenv)"
+      return 0
+    fi
+  done
 }
 
 copy_if_missing() {
@@ -40,12 +50,43 @@ copy_if_missing() {
   echo "Created: $target"
 }
 
+# The official binary is smaller and faster than Homebrew's build and can update itself.
+ensure_mise() {
+  if [[ -x "$HOME/.local/bin/mise" ]]; then
+    return 0
+  fi
+
+  echo "Installing mise..."
+  curl -fsSL https://mise.run | MISE_INSTALL_HELP=0 sh
+}
+
 install_brewfile_if_present() {
   local brewfile="$1"
 
   if [[ -f "$brewfile" ]]; then
     brew bundle install --file="$brewfile"
   fi
+}
+
+# Git verifies SSH commit signatures against this file. It holds your email, so it stays untracked.
+ensure_allowed_signers() {
+  local signers="$CONFIG_HOME/git/allowed_signers"
+  local key="$HOME/.ssh/id_ed25519.pub"
+  local email
+
+  if [[ -e "$signers" ]]; then
+    echo "Unchanged: $signers"
+    return 0
+  fi
+
+  email="$(git config --global user.email || true)"
+  if [[ ! -f "$key" || -z "$email" || "$email" == "you@example.com" ]]; then
+    echo "Skipped: $signers (set user.email in ~/.gitconfig and create $key first)"
+    return 0
+  fi
+
+  printf '%s namespaces="git" %s\n' "$email" "$(cut -d' ' -f1,2 "$key")" > "$signers"
+  echo "Created: $signers"
 }
 
 ensure_homebrew
@@ -55,10 +96,15 @@ if command -v brew >/dev/null 2>&1; then
   install_brewfile_if_present "$ROOT/Brewfile.local"
 fi
 
-copy_if_missing "$ROOT/local/gitconfig.local.example" "$HOME/.gitconfig.local"
-copy_if_missing "$ROOT/local/zshrc.local.example" "$HOME/.zshrc.local"
-
+# Linking runs first because it migrates an old ~/.gitconfig symlink out of the way.
 "$ROOT/bin/link"
+
+copy_if_missing "$ROOT/local/gitconfig.example" "$HOME/.gitconfig"
+copy_if_missing "$ROOT/local/zshrc.local.example" "$HOME/.zshrc.local"
+ensure_allowed_signers
+
+ensure_mise
+"$HOME/.local/bin/mise" install
 
 if [[ $RUN_MACOS -eq 1 ]]; then
   "$ROOT/bin/macos"

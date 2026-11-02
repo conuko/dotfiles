@@ -1,14 +1,19 @@
+typeset -U path fpath
+
+# Static equivalent of `brew shellenv`, which costs ~100 ms on every shell start.
 if [[ -x /opt/homebrew/bin/brew ]]; then
-  eval "$(/opt/homebrew/bin/brew shellenv)"
+  export HOMEBREW_PREFIX="/opt/homebrew"
+  export HOMEBREW_REPOSITORY="/opt/homebrew"
 elif [[ -x /usr/local/bin/brew ]]; then
-  eval "$(/usr/local/bin/brew shellenv)"
+  export HOMEBREW_PREFIX="/usr/local"
+  export HOMEBREW_REPOSITORY="/usr/local/Homebrew"
 fi
 
-[[ -d "$PYENV_ROOT/bin" ]] && export PATH="$PYENV_ROOT/bin:$PATH"
-[[ -d "$DOTFILES_DIR/bin" ]] && export PATH="$DOTFILES_DIR/bin:$PATH"
-[[ -d "$HOME/.local/bin" ]] && export PATH="$HOME/.local/bin:$PATH"
+if [[ -n "${HOMEBREW_PREFIX:-}" ]]; then
+  export HOMEBREW_CELLAR="$HOMEBREW_PREFIX/Cellar"
+  export INFOPATH="$HOMEBREW_PREFIX/share/info:${INFOPATH:-}"
+  path=("$HOMEBREW_PREFIX/bin" "$HOMEBREW_PREFIX/sbin" $path)
+  fpath=("$HOMEBREW_PREFIX/share/zsh/site-functions" $fpath)
+fi
 
-case ":$PATH:" in
-  *":$PNPM_HOME:"*) ;;
-  *) export PATH="$PNPM_HOME:$PATH" ;;
-esac
+path=("$HOME/.local/bin" "$PNPM_HOME" $path)

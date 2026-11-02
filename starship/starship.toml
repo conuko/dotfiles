@@ -1,0 +1,72 @@
+"$schema" = "https://starship.rs/config-schema.json"
+
+# Lean single-line prompt. Only the modules listed in `format` are shown,
+# so cloud context (gcloud, aws) and package versions stay out of the way.
+add_newline = false
+command_timeout = 500
+
+format = """
+$hostname\
+$directory\
+$git_branch\
+$git_state\
+$git_status\
+$nodejs\
+$bun\
+$deno\
+$python\
+$golang\
+$ruby\
+$cmd_duration\
+$jobs\
+$character"""
+
+[hostname]
+ssh_only = true
+format = "[$hostname]($style) "
+
+[directory]
+style = "bold blue"
+truncation_length = 4
+
+[git_branch]
+format = "[$symbol$branch(:$remote_branch)]($style) "
+style = "green"
+
+[git_state]
+format = "[$state( $progress_current/$progress_total)]($style) "
+
+[git_status]
+format = "([$all_status$ahead_behind]($style) )"
+style = "yellow"
+
+[nodejs]
+format = "[$symbol($version)]($style) "
+
+[bun]
+format = "[$symbol($version)]($style) "
+
+[deno]
+format = "[$symbol($version)]($style) "
+
+[python]
+format = "[$symbol$pyenv_prefix($version)( \\($virtualenv\\))]($style) "
+
+[golang]
+format = "[$symbol($version)]($style) "
+
+[ruby]
+format = "[$symbol($version)]($style) "
+
+[cmd_duration]
+min_time = 2_000
+format = "[$duration]($style) "
+style = "yellow"
+
+[jobs]
+format = "[$symbol$number]($style) "
+
+[character]
+success_symbol = "[❯](bold green)"
+error_symbol = "[❯](bold red)"
+vimcmd_symbol = "[❮](bold green)"
